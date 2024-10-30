@@ -80,8 +80,10 @@ public class Map {
     private void printTile(Cell cell) {
         String resetColor = "\u001B[0m";
         int level = cell.getLevel();
-        cell.setPlant(new Grass('@',2,2));
-        System.out.print("\u001B[32m🌱" + resetColor);
+        if (level==5) {cell.setPlant(new Grass('@',2,2));
+            System.out.print("\u001B[32m🌱" + resetColor);
+        }else  System.out.print("  ");
+
        /* if (level < waterLevel) {
             System.out.print("\u001B[34m💧" + resetColor);  // Вода
         } else if (level == 4) {
