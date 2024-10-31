@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Rabbit extends Animal {
-    private static final int MAX_LIFE_ENERGY =30;
+    private static final int MAX_LIFE_ENERGY =20;
+    private int age=0;
+    private static final int MAX_AGE =20;
     private int energy=0;
     private String icon="🐰";
     private static final int ENERGY_TO_REPRODUCE = 10;
     private static final int ENERGY_GAIN_FROM_GRASS = 1;
-    private int LIFE_ENERGY = 20;
+    private int LIFE_ENERGY = 10;
 
     private static   ArrayList<Rabbit> rabbits = new ArrayList<>();
     public Rabbit(int MAX_AGE, double speed, int positionX, int positionY) {
@@ -19,6 +21,7 @@ public class Rabbit extends Animal {
     }
 
     public void moveAndEat(Cell[][] map) {
+        age++;
         int targetX = -1;
         int targetY = -1;
         int minDistance = Integer.MAX_VALUE;
@@ -45,7 +48,7 @@ public class Rabbit extends Animal {
         if (canReproduce()){
             reproduce(10,2.0,getPositionX(),getPositionY());
         }
-        if (LIFE_ENERGY <= 0) {
+        if (LIFE_ENERGY <= 0|| age>=MAX_AGE) {
             Cell currentCell = map[getPositionX()][getPositionY()];
             rabbits.remove(this);
             currentCell.delAnimal();
@@ -53,25 +56,37 @@ public class Rabbit extends Animal {
     }
 
     private void moveToGrass(int targetX, int targetY, Cell[][] map) {
-        if (getPositionX() < targetX && getPositionX() + 1 < map.length && !map[getPositionX() + 1][getPositionY()].isHaveAnimal()) {
-            setPositionX(getPositionX() + 1);
-        } else if (getPositionX() > targetX && getPositionX() - 1 >= 0 && !map[getPositionX() - 1][getPositionY()].isHaveAnimal()) {
-            setPositionX(getPositionX() - 1);
-        } else if (getPositionY() < targetY && getPositionY() + 1 < map[0].length && !map[getPositionX()][getPositionY() + 1].isHaveAnimal()) {
-            setPositionY(getPositionY() + 1);
-        } else if (getPositionY() > targetY && getPositionY() - 1 >= 0 && !map[getPositionX()][getPositionY() - 1].isHaveAnimal()) {
-            setPositionY(getPositionY() - 1);
+        int deltaX = targetX - getPositionX();
+        int deltaY = targetY - getPositionY();
+
+        int stepX = Integer.compare(deltaX, 0);
+        int stepY = Integer.compare(deltaY, 0);
+
+        if (stepX != 0 && getPositionX() + stepX >= 0 && getPositionX() + stepX < map.length
+                && !map[getPositionX() + stepX][getPositionY()].isHaveAnimal()) {
+            setPositionX(getPositionX() + stepX);
         }
+        // Перемещаемся в направлении травы по оси Y, если не смогли переместиться по X
+        else if (stepY != 0 && getPositionY() + stepY >= 0 && getPositionY() + stepY < map[0].length
+                && !map[getPositionX()][getPositionY() + stepY].isHaveAnimal()) {
+            setPositionY(getPositionY() + stepY);
+        }
+
+        // Проверяем, находится ли кролик на траве, и ест, если да
         Cell targetCell = map[getPositionX()][getPositionY()];
         if (targetCell.isHavePlant()) {
             targetCell.getPlant();
             energy += ENERGY_GAIN_FROM_GRASS;
             LIFE_ENERGY = Math.min(LIFE_ENERGY + ENERGY_GAIN_FROM_GRASS, MAX_LIFE_ENERGY);
-            targetCell.delPlant();
+            targetCell.delPlant(); // Удаляем траву после еды
         } else {
-            LIFE_ENERGY--;
+            LIFE_ENERGY--; // Уменьшаем жизненную энергию, если травы нет
         }
+
+        // Обновляем позицию кролика на текущей клетке
+        targetCell.setAnimal(this);
     }
+
     private void moveRandomly(Cell[][] map) {
         Random random = new Random();
         int direction = random.nextInt(4);

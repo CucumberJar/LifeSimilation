@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="LifeSimilation:jar">
-    <output-path>$USER_HOME$/Desktop/New Folder</output-path>
+    <output-path>$PROJECT_DIR$</output-path>
     <root id="archive" name="LifeSimilation.jar">
       <element id="module-output" name="LifeSimilation" />
     </root>

@@ -1,11 +1,11 @@
 package Map;
 import Plant.Grass;
-import Plant.Plant;
 
 import java.util.ArrayList;
 import java.util.Random;
+
 public class Map {
-    private ArrayList <Cell> cells;// Список крайних трав
+    private ArrayList<Cell> cells;  // Список крайних трав
     private final int SIZE_X;
     private final int SIZE_Y;
     private final Cell[][] map;
@@ -34,51 +34,55 @@ public class Map {
     }
 
     private void updateEdgeCells() {
-        cells.clear(); // Очищаем список перед обновлением
-        for (int i = 1; i < map.length-1; i++) {
-            for (int j = 1; j < map[i].length-1; j++) {
-                if (!map[i][j].isHavePlant() && isEdgeGrass(map[i][j])) {
+        cells.clear();  // Очищаем список перед обновлением
+        for (int i = 1; i < SIZE_X - 1; i++) {
+            for (int j = 1; j < SIZE_Y - 1; j++) {
+                if (!map[i][j].isHavePlant() && isEdgeGrass(i, j)) {
                     cells.add(map[i][j]);
                     map[i][j].setPositionX(i);
-                    map[i][j].setPositionX(j);
+                    map[i][j].setPositionY(j);
                 }
             }
         }
     }
 
     public void growGrass() {
-        for (int i = 0; i < 3; i++) {
-            updateEdgeCells(); // Обновляем список крайних трав
-            if (!cells.isEmpty()) {setFreeCell(cells.get(random.nextInt(cells.size())));}
+        for (int i = 0; i <6; i++) {
+            updateEdgeCells();  // Обновляем список крайних трав
+            if (!cells.isEmpty()) {
+                setFreeCell(cells.get(random.nextInt(cells.size())));
+            }
         }
-
     }
 
-    private boolean isEdgeGrass(Cell cell) {
-        if (cell.getPositionX()!=0){
-        int x = cell.getPositionX();
-        int y = cell.getPositionY();
+    private boolean isEdgeGrass(int x, int y) {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (i != 0 || j != 0) {
-                    x += i;
-                    y += j;
-                    if (map[x][y].isHavePlant()) {return true;}
+                int neighborX = x + i;
+                int neighborY = y + j;
+                if ((i != 0 || j != 0) && isWithinBounds(neighborX, neighborY) && map[neighborX][neighborY].isHavePlant()) {
+                    return true;
                 }
             }
-        }}
+        }
         return false;
     }
+
     private void setFreeCell(Cell cell) {
-        int x = -1;
-        int y = -1;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (i != 0 || j != 0) {x += i;y += j;}
-                if ( !map[x][y].isHavePlant()) {cell.setPlant(new Grass(cell.getPositionX()+x,cell.getPositionY()+y));return;}
+                int newX = cell.getPositionX() + i;
+                int newY = cell.getPositionY() + j;
+                if ((i != 0 || j != 0) && isWithinBounds(newX, newY) && !map[newX][newY].isHavePlant()) {
+                    map[newX][newY].setPlant(new Grass(newX, newY));
+                    return;
+                }
             }
         }
+    }
 
+    private boolean isWithinBounds(int x, int y) {
+        return x >= 0 && x < SIZE_X && y >= 0 && y < SIZE_Y;
     }
 
     private int interpolateHeight(int x, int y, int[][] controlPoints) {
@@ -90,10 +94,8 @@ public class Map {
         int top = controlPoints[cellX * (SIZE_X / 5)][(cellY + 1) * (SIZE_Y / 5) % SIZE_Y];
         int bottom = controlPoints[(cellX + 1) * (SIZE_X / 5) % SIZE_X][(cellY + 1) * (SIZE_Y / 5) % SIZE_Y];
 
-
         double tx = (double) (x % (SIZE_X / 5)) / (SIZE_X / 5);
         double ty = (double) (y % (SIZE_Y / 5)) / (SIZE_Y / 5);
-
 
         int topValue = (int) (left * (1 - tx) + right * tx);
         int bottomValue = (int) (top * (1 - tx) + bottom * tx);
@@ -104,23 +106,15 @@ public class Map {
         System.out.print("\033[?25l");
         for (int i = 0; i < SIZE_X; i++) {
             for (int j = 0; j < SIZE_Y; j++) {
-                if (map[i][j].getLevel()==waterLevel+1) {map[i][j].setPlant(new Grass(i,j));}
-                printTile(map[i][j]);
+                if (map[i][j].getLevel() == waterLevel + 1) {
+                    map[i][j].setPlant(new Grass(i, j));
+                }
             }
             System.out.println();
         }
     }
 
-
-    private void printTile(Cell cell) {
-        if (cell.isHavePlant()) System.out.print(cell.getPlant().getIcon());
-        else System.out.print("  ");}
-
-
     public Cell[][] getMap() {
         return map;
     }
-
 }
-
-

@@ -32,27 +32,27 @@ public class Cell {
     public void setPlant(Plant plant) {
         this.plant = plant;
         this.havePlant = true;
-        System.out.print("\033[" + (plant.getPositionX()+1) + ";" + (plant.getPositionY()*2+2) + "H🌱");
+        System.out.print("\033[" + (plant.getPositionX()+1) + ";" + (plant.getPositionY()*2+1) + "H🌱");
         System.out.flush();
 
     }
 
     public void delPlant() {
-        System.out.print("\033[" + (plant.getPositionX()+1) + ";" + (plant.getPositionY()*2+2) + "H**");
+        System.out.print("\033[" + (plant.getPositionX()+1) + ";" + (plant.getPositionY()*2+1) + "H  ");
         System.out.flush();
         this.plant = null;
         this.havePlant = false;
     }
 
     public void setAnimal(Animal animal) {
-        System.out.print("\033[" + (animal.getPositionX()+1) + ";" + ((animal.getPositionY()+1)*2+2) + "H🐰");
+        System.out.print("\033[" + (animal.getPositionX()+1) + ";" + ((animal.getPositionY())*2+1) + "H🐰");
         System.out.flush();
         this.animal = animal;
         this.haveAnimal = true;
     }
 
     public void delAnimal() {
-        System.out.print("\033[" + (animal.getPositionX()+1) + ";" + ((animal.getPositionY()+1)*2+2) + "H@@");
+        System.out.print("\033[" + (animal.getPositionX()+1) + ";" + ((animal.getPositionY())*2+1) + "H  ");
         System.out.flush();
         this.animal = null;
         this.haveAnimal = false;
