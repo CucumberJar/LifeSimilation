@@ -18,8 +18,8 @@ Ecosystem Simulator - это начальная версия симуляции 
 
 1. Склонируйте репозиторий:
    ```bash
-   git clone https://github.com/yourusername/ecosystem-simulator.git
-   cd ecosystem-simulator
+   git clone https://github.com/CucumberJar/LifeSimilation.git
+   cd LifeSimilation
    ```
 
 2. Убедитесь, что у вас установлена Java 8+.
