@@ -14,10 +14,10 @@ public class Main {
 
 
         while (true) {
+            //   map.growGrass();
             for (int i = 0; i < rabbit.getRabbits().size(); i++) {
-                rabbit.getRabbits().get(i).moveAndEat(map.getMap());
 
-   //             System.out.println(rabbit.getRabbits().size());
+                rabbit.getRabbits().get(i).moveAndEat(map.getMap());
             }
 
             try {

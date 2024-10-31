@@ -1,17 +1,11 @@
 package Map;
-import Animal.Rabbit;
 import Plant.Grass;
+import Plant.Plant;
 
+import java.util.ArrayList;
 import java.util.Random;
-
 public class Map {
-///
-///
-/// //
-///
-///
-///
-///
+    private ArrayList <Cell> cells;// Список крайних трав
     private final int SIZE_X;
     private final int SIZE_Y;
     private final Cell[][] map;
@@ -22,21 +16,16 @@ public class Map {
         this.SIZE_X = sizeX;
         this.SIZE_Y = sizeY;
         this.map = new Cell[SIZE_X][SIZE_Y];
+        cells = new ArrayList<>();
     }
 
-    // Генерация карты с плавным градиентом высоты
     public void generate() {
-        // Устанавливаем точки контроля высоты по краям карты
         int[][] controlPoints = new int[SIZE_X][SIZE_Y];
-
-        // Заполняем контрольные точки случайными значениями высоты
         for (int i = 0; i < SIZE_X; i += SIZE_X / 5) {
             for (int j = 0; j < SIZE_Y; j += SIZE_Y / 5) {
                 controlPoints[i][j] = random.nextInt(15) + 1;  // Значение высоты от 1 до 15
             }
         }
-
-        // Интерполяция высоты для каждой клетки карты
         for (int i = 0; i < SIZE_X; i++) {
             for (int j = 0; j < SIZE_Y; j++) {
                 map[i][j] = new Cell(interpolateHeight(i, j, controlPoints));
@@ -44,7 +33,54 @@ public class Map {
         }
     }
 
-    // Интерполяция высоты для плавного перехода между контрольными точками
+    private void updateEdgeCells() {
+        cells.clear(); // Очищаем список перед обновлением
+        for (int i = 1; i < map.length-1; i++) {
+            for (int j = 1; j < map[i].length-1; j++) {
+                if (!map[i][j].isHavePlant() && isEdgeGrass(map[i][j])) {
+                    cells.add(map[i][j]);
+                    map[i][j].setPositionX(i);
+                    map[i][j].setPositionX(j);
+                }
+            }
+        }
+    }
+
+    public void growGrass() {
+        for (int i = 0; i < 3; i++) {
+            updateEdgeCells(); // Обновляем список крайних трав
+            if (!cells.isEmpty()) {setFreeCell(cells.get(random.nextInt(cells.size())));}
+        }
+
+    }
+
+    private boolean isEdgeGrass(Cell cell) {
+        if (cell.getPositionX()!=0){
+        int x = cell.getPositionX();
+        int y = cell.getPositionY();
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i != 0 || j != 0) {
+                    x += i;
+                    y += j;
+                    if (map[x][y].isHavePlant()) {return true;}
+                }
+            }
+        }}
+        return false;
+    }
+    private void setFreeCell(Cell cell) {
+        int x = -1;
+        int y = -1;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i != 0 || j != 0) {x += i;y += j;}
+                if ( !map[x][y].isHavePlant()) {cell.setPlant(new Grass(cell.getPositionX()+x,cell.getPositionY()+y));return;}
+            }
+        }
+
+    }
+
     private int interpolateHeight(int x, int y, int[][] controlPoints) {
         int cellX = x / (SIZE_X / 5);
         int cellY = y / (SIZE_Y / 5);
@@ -54,57 +90,37 @@ public class Map {
         int top = controlPoints[cellX * (SIZE_X / 5)][(cellY + 1) * (SIZE_Y / 5) % SIZE_Y];
         int bottom = controlPoints[(cellX + 1) * (SIZE_X / 5) % SIZE_X][(cellY + 1) * (SIZE_Y / 5) % SIZE_Y];
 
-        // Линейная интерполяция между контрольными точками
+
         double tx = (double) (x % (SIZE_X / 5)) / (SIZE_X / 5);
         double ty = (double) (y % (SIZE_Y / 5)) / (SIZE_Y / 5);
 
-        // Интерполяция высоты с шумом
+
         int topValue = (int) (left * (1 - tx) + right * tx);
         int bottomValue = (int) (top * (1 - tx) + bottom * tx);
         return (int) (topValue * (1 - ty) + bottomValue * ty + (random.nextDouble() - 0.5) * 2);
     }
 
-    // Печать карты с учетом биомов и текущего сезона
     public void print() {
-        // Скрываем курсор
         System.out.print("\033[?25l");
         for (int i = 0; i < SIZE_X; i++) {
             for (int j = 0; j < SIZE_Y; j++) {
-                printTile(map[i][j]); // Печатаем ячейку
+                if (map[i][j].getLevel()==waterLevel+1) {map[i][j].setPlant(new Grass(i,j));}
+                printTile(map[i][j]);
             }
             System.out.println();
         }
     }
 
-    // Метод для печати ячейки карты с учетом уровня высоты
-    private void printTile(Cell cell) {
-        String resetColor = "\u001B[0m";
-        int level = cell.getLevel();
-        if (level==5) {cell.setPlant(new Grass('@',2,2));
-            System.out.print("\u001B[32m🌱" + resetColor);
-        }else  System.out.print("  ");
 
-       /* if (level < waterLevel) {
-            System.out.print("\u001B[34m💧" + resetColor);  // Вода
-        } else if (level == 4) {
-            // Низкая трава
-        } else if (level == 5) {
-            System.out.print("\u001B[92m🌾" + resetColor);  // Поля
-        } else {
-            System.out.print("  ");  // Леса
-        }*/
-    }
+    private void printTile(Cell cell) {
+        if (cell.isHavePlant()) System.out.print(cell.getPlant().getIcon());
+        else System.out.print("  ");}
+
 
     public Cell[][] getMap() {
         return map;
     }
 
-    // Метод для обновления только позиции зайца
-    public void updateRabbitPosition(int rabbitX, int rabbitY, int previousRabbitX, int previousRabbitY) {
-        // Очищаем предыдущую позицию зайца
-        System.out.print("\033[" + (previousRabbitX + 1) + ";" + (previousRabbitY * 2 + 1) + "H  "); // Очищаем ячейку
-        // Печатаем зайца на новой позиции
-        System.out.print("\033[" + (rabbitX + 1) + ";" + (rabbitY * 2 + 1) + "H\uD83D\uDC30"); // Печатаем зайца
-        System.out.flush(); // Обновляем вывод
-    }
 }
+
+

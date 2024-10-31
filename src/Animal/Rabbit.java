@@ -15,12 +15,10 @@ public class Rabbit extends Animal {
     private static   ArrayList<Rabbit> rabbits = new ArrayList<>();
     public Rabbit(int MAX_AGE, double speed, int positionX, int positionY) {
         super(MAX_AGE, speed, positionX, positionY);
-      //  System.out.println("**/*/*/*//");
        rabbits.add(this);
     }
 
     public void moveAndEat(Cell[][] map) {
-       // map[getPositionX()][getPositionY()].setAnimal(this);
         int targetX = -1;
         int targetY = -1;
         int minDistance = Integer.MAX_VALUE;
@@ -47,18 +45,14 @@ public class Rabbit extends Animal {
         if (canReproduce()){
             reproduce(10,2.0,getPositionX(),getPositionY());
         }
-        // Проверка энергии и удаление зайца
         if (LIFE_ENERGY <= 0) {
             Cell currentCell = map[getPositionX()][getPositionY()];
-            rabbits.remove(this); // Удаляем зайца из коллекции
-            currentCell.delAnimal(); // Удаляем зайца с клетки карты
+            rabbits.remove(this);
+            currentCell.delAnimal();
         }
     }
 
     private void moveToGrass(int targetX, int targetY, Cell[][] map) {
-        Cell currentCell = map[getPositionX()][getPositionY()];
-
-        // Движение к траве
         if (getPositionX() < targetX && getPositionX() + 1 < map.length && !map[getPositionX() + 1][getPositionY()].isHaveAnimal()) {
             setPositionX(getPositionX() + 1);
         } else if (getPositionX() > targetX && getPositionX() - 1 >= 0 && !map[getPositionX() - 1][getPositionY()].isHaveAnimal()) {
@@ -68,71 +62,49 @@ public class Rabbit extends Animal {
         } else if (getPositionY() > targetY && getPositionY() - 1 >= 0 && !map[getPositionX()][getPositionY() - 1].isHaveAnimal()) {
             setPositionY(getPositionY() - 1);
         }
-
-        // Логика поедания
         Cell targetCell = map[getPositionX()][getPositionY()];
         if (targetCell.isHavePlant()) {
-            targetCell.getPlant(); // Заяц ест траву
-            energy += ENERGY_GAIN_FROM_GRASS; // Восстановление энергии
-            LIFE_ENERGY = Math.min(LIFE_ENERGY + ENERGY_GAIN_FROM_GRASS, MAX_LIFE_ENERGY); // Ограничение максимальной энергии
-            targetCell.delPlant(); // Удаляем траву после поедания
+            targetCell.getPlant();
+            energy += ENERGY_GAIN_FROM_GRASS;
+            LIFE_ENERGY = Math.min(LIFE_ENERGY + ENERGY_GAIN_FROM_GRASS, MAX_LIFE_ENERGY);
+            targetCell.delPlant();
         } else {
-            LIFE_ENERGY--; // Заяц теряет энергию, если травы нет
+            LIFE_ENERGY--;
         }
     }
-
     private void moveRandomly(Cell[][] map) {
         Random random = new Random();
-        int direction = random.nextInt(4); // Случайное направление: 0 - вверх, 1 - вниз, 2 - влево, 3 - вправо
-
+        int direction = random.nextInt(4);
         switch (direction) {
-            case 0: // Вверх
+            case 0:
                 if (getPositionX() - 1 >= 0 && !map[getPositionX() - 1][getPositionY()].isHaveAnimal()) {
                     setPositionX(getPositionX() - 1);
                 }
                 break;
-            case 1: // Вниз
+            case 1:
                 if (getPositionX() + 1 < map.length && !map[getPositionX() + 1][getPositionY()].isHaveAnimal()) {
                     setPositionX(getPositionX() + 1);
                 }
                 break;
-            case 2: // Влево
+            case 2:
                 if (getPositionY() - 1 >= 0 && !map[getPositionX()][getPositionY() - 1].isHaveAnimal()) {
                     setPositionY(getPositionY() - 1);
                 }
                 break;
-            case 3: // Вправо
+            case 3:
                 if (getPositionY() + 1 < map[0].length && !map[getPositionX()][getPositionY() + 1].isHaveAnimal()) {
                     setPositionY(getPositionY() + 1);
                 }
                 break;
         }
-
-        LIFE_ENERGY--; // Заяц теряет энергию за движение
+        LIFE_ENERGY--;
     }
-
-
-
-
-                    public  ArrayList<Rabbit> getRabbits() {
-
-                    return rabbits;
-    }
-
-    public String getIcon() {
-        return icon; // Иконка зайца
-    }
-
-    public boolean canReproduce() {
-        return energy >= ENERGY_TO_REPRODUCE;
-    }
+    public  ArrayList<Rabbit> getRabbits() {return rabbits;}
+    public String getIcon() {return icon;}
+    public boolean canReproduce() {return energy >= ENERGY_TO_REPRODUCE;}
 
     public Rabbit reproduce(int MAX_AGE, double speed, int positionX, int positionY) {
-        if (canReproduce()) {
-            energy /= 2; // Делим энергию между собой и потомком
-
-            return new Rabbit(MAX_AGE,speed,positionX,positionY);
-        }
-        return null;
+        if (canReproduce()) {energy /= 2;return new Rabbit(MAX_AGE,speed,positionX,positionY);
+        }return null;
     }
 }

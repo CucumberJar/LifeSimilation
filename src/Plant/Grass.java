@@ -1,15 +1,8 @@
 package Plant;
 
-public class Grass extends Plant implements PlantRules{
-
-    public Grass(char icon, int nutritionalValue, int growthRate) {
-        super(icon, nutritionalValue, growthRate);
+public class Grass extends Plant{
+    public Grass(int positionX, int positionY) {
+        super(positionX, positionY);
     }
-
-    @Override
-    public void grow() {
-
-    }
-
-
+    public String getIcon() {return"🌱";}
 }
